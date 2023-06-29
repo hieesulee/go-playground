@@ -1,18 +1,40 @@
-name: Test and coverage
+name: Continuous Integration
 
 on: [push, pull_request]
 
 jobs:
-  build:
+  ci:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
+        name: checkout
+
+      - uses: actions/setup-go@v3
         with:
-          fetch-depth: 2
-      - uses: actions/setup-go@v2
+          go-version: "1.20"
+          check-latest: true
+          cache: true
+
+      - run: go mod download
+        name: Cache gomod
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v3
         with:
-          go-version: "1.18"
+          version: v1.53.3
+          args: --timeout 600s
+          only-new-issues: false
+          skip-cache: true
+          skip-pkg-cache: true
+          skip-build-cache: true
+
       - name: Run coverage
-        run: go test -race -coverprofile=coverage.txt -covermode=atomic -coverpkg=./... ./...
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v3
+        run: make test-coverage
+
+      - name: Run Unit Test
+        run: make test-unit
+
+      - name: Run Unit Test
+        run: make test-integration
