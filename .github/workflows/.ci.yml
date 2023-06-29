@@ -31,10 +31,10 @@ jobs:
           skip-build-cache: true
 
       - name: Run coverage
-        run: make test-coverage
+        run: make test-cover
 
       - name: Run Unit Test
         run: make test-unit
 
-      - name: Run Unit Test
+      - name: Run Integration Test
         run: make test-integration
